@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="예비신혼부부(홍지훈·박수정)를 위한 결혼 준비부터 내 집 마련(대출·취득세·LTV·DSR)까지 한 화면에서 계산하는 참고용 웹앱. 모든 계산은 브라우저에서만 이뤄지며 개인정보는 서버로 전송되지 않아요.">
 <title>예비신혼부부 시뮬레이션 허브</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -362,6 +361,37 @@
   .modal-box .mnote{font-size:11.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:10px;margin-top:6px;line-height:1.6;}
 
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}html{scroll-behavior:auto;}}
+    .fcount{font-size:12px;color:var(--jade-deep);font-weight:700;margin:2px 0 14px;letter-spacing:-.2px}
+    .fcount::before{content:'⬢ ';color:var(--jade);font-size:9px;vertical-align:1px}
+    .schbtn{background:var(--jade);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;transition:.15s}
+    .schbtn:hover{opacity:.9;transform:translateY(-1px)}
+    .schbtn:active{transform:translateY(0)}
+    .schbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+    .schtbl{width:100%;border-collapse:collapse;font-size:13px;min-width:440px}
+    .schtbl th,.schtbl td{padding:8px 10px;text-align:right;border-bottom:1px solid #eee}
+    .schtbl th:first-child,.schtbl td:first-child{text-align:center;color:var(--ink-soft)}
+    .schtbl thead th{background:var(--blush);color:var(--ink);font-weight:600;border-bottom:2px solid var(--coral)}
+    .schtbl tbody tr:nth-child(even){background:#fcfbf9}
+    .schtbl tfoot th{background:var(--jade-tint);color:var(--jade-deep);font-weight:700;border-top:2px solid var(--jade);text-align:right}
+    .schtbl tfoot th:first-child{text-align:center}
+    .savebox{border-top:1px dashed var(--line-strong);margin-top:20px;padding-top:6px}
+    .svin{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:16px}
+    .svrow{display:flex;flex-direction:column;gap:5px}
+    .svrow label{font-size:12.5px;color:var(--ink-soft);font-weight:600}
+    .svfield{display:flex;align-items:center;gap:6px;background:#faf7f3;border:1px solid #ece3d8;border-radius:9px;padding:8px 11px}
+    .svfield input{border:none;background:transparent;font-size:15px;width:100%;font-family:inherit;color:var(--ink);outline:none;text-align:right}
+    .svfield em{font-style:normal;font-size:12px;color:var(--ink-soft);white-space:nowrap}
+    .svbig{display:flex;justify-content:space-between;align-items:baseline;padding:14px 16px;background:linear-gradient(135deg,var(--jade-tint),#dfeae4);border-radius:13px;margin-bottom:12px;gap:10px;flex-wrap:wrap;border:1px solid rgba(46,139,121,.16)}
+    .svbig .k{font-size:13px;color:var(--ink-soft);font-weight:600}
+    .svbig .v{font-size:20px;font-weight:800;color:var(--jade)}
+    .svbig .v.warm{color:var(--coral-deep)}
+    .svlines{list-style:none;padding:0;margin:0}
+    .svlines li{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid #f0ebe4;font-size:13.5px}
+    .svlines li span{color:var(--ink-soft)}
+    .svlines li b{color:var(--ink)}
+    .svlines li.svtie{border-top:2px solid var(--coral);border-bottom:none;margin-top:4px}
+    .svlines li.svtie span,.svlines li.svtie b{color:var(--coral-deep);font-weight:700}
+    @media(max-width:520px){.svin{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -707,6 +737,14 @@
             <button data-v="var" aria-pressed="true">변동</button>
             <button data-v="fix" aria-pressed="false">고정·혼합</button>
           </div>
+          <div class="seg" id="loan-scn" style="margin-top:10px">
+            <span class="lab">스트레스 시나리오 <span class="info" data-info="scn" role="button" tabindex="0" aria-label="설명">?</span></span>
+            <div class="btns">
+              <button data-v="base" aria-pressed="true">기본(2026 3단계)</button>
+              <button data-v="soft" aria-pressed="false">완화(-0.75%p)</button>
+              <button data-v="hard" aria-pressed="false">강화(+0.75%p)</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -733,6 +771,32 @@
         <div class="methods" id="l-methods"></div>
         <h3 style="margin-top:24px;">이율 ±1%p 부담 변화 <small style="font-weight:400;color:var(--ink-soft);font-size:12px;">(원리금균등 월 납입)</small></h3>
         <div class="sens" id="l-sens"></div>
+        <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+          <h3 style="margin:0;">연도별 상환 스케줄 <small style="font-weight:400;color:var(--ink-soft);font-size:12px;">(선택한 상환 방식 기준 · 원금이 어떻게 줄어드는지)</small></h3>
+          <button type="button" id="l-sched-toggle" class="schbtn" aria-expanded="false">표 펼치기 ▾</button>
+        </div>
+        <div id="l-sched-wrap" hidden style="margin-top:12px;overflow-x:auto;">
+          <table class="schtbl" id="l-sched"></table>
+        </div>
+        <div class="savebox">
+          <h3 style="margin:22px 0 6px;">💰 저축 계획 시뮬레이터 <span class="info" data-info="save" role="button" tabindex="0" aria-label="설명">?</span></h3>
+          <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;line-height:1.6;">매달 꾸준히 모으면 <b>목표 자기자본</b>까지 얼마나 걸릴까요? 월복리로 계산하고, 목표를 이뤘을 때 위 대출이 얼마나 가벼워지는지까지 보여드려요. 둘이 함께라면 더 빨라져요 🌱</p>
+          <div class="svin">
+            <div class="svrow"><label>현재 모은 돈</label><div class="svfield"><input type="number" id="sv-init" value="20000" min="0" step="1000"><em>천원</em></div></div>
+            <div class="svrow"><label>매월 저축액(합산)</label><div class="svfield"><input type="number" id="sv-month" value="2500" min="0" step="100"><em>천원</em></div></div>
+            <div class="svrow"><label>예상 연이율</label><div class="svfield"><input type="number" id="sv-rate" value="3.5" min="0" step="0.1"><em>%</em></div></div>
+            <div class="svrow"><label>목표 자기자본</label><div class="svfield"><input type="number" id="sv-goal" value="47000" min="0" step="1000"><em>천원</em></div></div>
+          </div>
+          <div class="svres" id="sv-res"></div>
+          <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <h3 style="margin:0;font-size:15px;">연도별 저축 추이</h3>
+            <button type="button" id="sv-toggle" class="schbtn" aria-expanded="false">표 펼치기 ▾</button>
+          </div>
+          <div id="sv-wrap" hidden style="margin-top:12px;overflow-x:auto;">
+            <table class="schtbl" id="sv-tbl"></table>
+          </div>
+          <div class="note">참고용 계산이에요. 실제 적금·예금은 이자소득세(15.4%)·우대조건·비과세 한도 등에 따라 달라질 수 있어요.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -755,12 +819,12 @@
     <div class="cmap">
       <div class="cslot">
         <div class="cslot-h"><span class="sb sb1">①</span><span id="slot1-name">비어 있음</span>
-          <a id="slot1-naver" href="https://map.naver.com" target="_blank" rel="noopener">네이버 ↗</a></div>
+          <a id="slot1-naver" href="https://map.naver.com" target="_blank" rel="noopener">네이버 ↗</a> <a id="slot1-big" href="#" target="_blank" rel="noopener" style="display:none">큰 지도 ↗</a></div>
         <iframe id="map1" title="비교 슬롯 ①" loading="lazy"></iframe>
       </div>
       <div class="cslot">
         <div class="cslot-h"><span class="sb sb2">②</span><span id="slot2-name">비어 있음</span>
-          <a id="slot2-naver" href="https://map.naver.com" target="_blank" rel="noopener">네이버 ↗</a></div>
+          <a id="slot2-naver" href="https://map.naver.com" target="_blank" rel="noopener">네이버 ↗</a> <a id="slot2-big" href="#" target="_blank" rel="noopener" style="display:none">큰 지도 ↗</a></div>
         <iframe id="map2" title="비교 슬롯 ②" loading="lazy"></iframe>
       </div>
     </div>
@@ -779,6 +843,24 @@
       <button data-f="up" aria-pressed="false">▲ 상승</button>
       <button data-f="flat" aria-pressed="false">― 보합</button>
     </div>
+    <div class="tfilter" id="rfilter">
+      <span class="fl">지역(구)</span>
+      <button data-r="all" aria-pressed="true">전체</button>
+      <button data-r="금천" aria-pressed="false">금천</button>
+      <button data-r="구로" aria-pressed="false">구로</button>
+      <button data-r="양천" aria-pressed="false">양천</button>
+      <button data-r="강서" aria-pressed="false">강서</button>
+      <button data-r="관악" aria-pressed="false">관악</button>
+    </div>
+    <div class="tfilter" id="pfilter">
+      <span class="fl">가격대</span>
+      <button data-pr="all" aria-pressed="true">전체</button>
+      <button data-pr="u7" aria-pressed="false">~7억</button>
+      <button data-pr="7to9" aria-pressed="false">7~9억</button>
+      <button data-pr="9to10" aria-pressed="false">9~10억</button>
+      <button data-pr="o10" aria-pressed="false">10억~</button>
+    </div>
+    <div class="fcount" id="fcount"></div>
     <div class="ptable-wrap">
       <table class="ptable">
         <thead><tr><th>단지</th><th>지역·역</th><th>전용</th><th class="sortable" data-sort="price">대략 매매가 <span class="si">↕</span></th><th class="sortable" data-sort="flow">매매 흐름 <span class="infobtn" data-info="flow" role="button" tabindex="0" title="기준 보기">?</span> <span class="si">↕</span></th><th>메모</th><th class="sortable" data-sort="commute">차량 소요(추정) <span class="infobtn" data-info="commute" role="button" tabindex="0">?</span> <span class="si">↕</span></th><th>바로가기</th></tr></thead>
@@ -954,12 +1036,35 @@
     return {first:p0, last:p0*Math.pow(1+g,Y-1), total:total, interest:total-P};
   }
   function payBy(m,P,ar,y){ return m==='principal'?principalPay(P,ar,y):m==='grad'?gradPay(P,ar,y):equalPay(P,ar,y); }
+  function schedule(m,P,ar,years){
+    if(P<=0) return [];
+    var r=ar/100/12, bal=P, rows=[], y, k;
+    var monthlyEqual = r===0 ? P/(years*12) : P*r/(1-Math.pow(1+r,-years*12));
+    var pp = P/(years*12);
+    var g=0.03, a12=r===0?12:(1-Math.pow(1+r,-12))/r, factor=0;
+    for(k=0;k<years;k++){ factor += Math.pow(1+g,k)/Math.pow(1+r,12*k); }
+    factor*=a12; var gradP0 = P/factor;
+    for(y=0; y<years; y++){
+      var yPrin=0, yInt=0;
+      for(k=0;k<12;k++){
+        if(bal<=0) break;
+        var interest = bal*r, principal;
+        if(m==='principal'){ principal = pp; }
+        else if(m==='grad'){ var pay = gradP0*Math.pow(1+g,y); principal = pay - interest; }
+        else { principal = monthlyEqual - interest; }
+        if(principal>bal) principal=bal;
+        bal -= principal; yPrin+=principal; yInt+=interest;
+      }
+      rows.push({y:y+1, principal:Math.round(yPrin), interest:Math.round(yInt), balance:Math.round(Math.max(0,bal))});
+    }
+    return rows;
+  }
   function maxPrincipal(room, sr, years){
     if(room<=0) return 0;
     var r=sr/100/12, n=years*12, per = (r===0 ? (1/n) : r/(1-Math.pow(1+r,-n))) * 12;
     return room/per;
   }
-  function computeLoan(income,equity,price,rate,term,credit,sev,first,fix){
+  function computeLoan(income,equity,price,rate,term,credit,sev,first,fix,scn){
     var totalEquity = equity + sev;
     var acqRate = price<=600000 ? 0.011 : price<=900000 ? 0.022 : 0.033;
     var acqTax = Math.round(price*acqRate);
@@ -969,7 +1074,8 @@
     var ltvPct = (first==='yes') ? 70 : 40;
     var ltvCap = Math.round(price*ltvPct/100);
     var hardCap = price<=1500000 ? 600000 : price<=2500000 ? 400000 : 200000;
-    var stressRate = rate + ((fix==='var') ? 3.0 : 2.4);  // 수도권·규제지역 3단계: 변동 하한 3.0%p, 혼합형 ≈80%(2.4%p)
+    var scnAdj = (scn==='soft') ? -0.75 : (scn==='hard') ? 0.75 : 0;
+      var stressRate = rate + scnAdj + ((fix==='var') ? 3.0 : 2.4);  // 수도권·규제지역 3단계: 변동 하한 3.0%p, 혼합형 ≈80%(2.4%p)
     var creditAnnual = credit>0 ? equalPay(credit, rate+2.0, 5).first*12 : 0;
     var dsrCap = maxPrincipal(Math.max(0, income*0.40 - creditAnnual), stressRate, term);
     var loan = Math.max(0, Math.min(need, ltvCap, hardCap, dsrCap));
@@ -993,6 +1099,8 @@
 
   // ---- 정보 팝업(모달) ----
   var INFO={
+    save:'<h4>저축 계획 시뮬레이터</h4><p>현재 모은 돈에 매달 저축액을 더하며 <b>월복리</b>로 굴렸을 때, 목표 자기자본까지 걸리는 기간을 계산해요.</p><ul><li><b>매월 저축액</b> — 부부 합산 저축 가능액</li><li><b>연이율</b> — 적금·예금 평균 금리(세전)</li><li><b>목표 자기자본</b> — 집 살 때 넣을 종잣돈 목표</li></ul><p style="color:#8a6a3a">이자소득세·우대금리는 반영하지 않은 참고용 값이에요.</p>',
+    scn:'<h4>스트레스 시나리오</h4><p>DSR 심사에 쓰는 <b>스트레스 금리 가산폭</b>을 조절해요. 미래 금리 상승 위험을 반영하는 완충 장치예요.</p><ul><li><b>기본</b> — 2026년 스트레스DSR 3단계(수도권 기준)</li><li><b>완화</b> — 가산폭 0.75%p 낮춘 가정</li><li><b>강화</b> — 가산폭 0.75%p 높인 보수적 가정</li></ul><p style="color:#8a6a3a">실제 적용치는 시기·규제지역·상품에 따라 달라져요.</p>',
     flow:'<h4>‘매매 흐름’ 표시 기준</h4>'
       +'<p>이 표시는 자동 계산 지표가 아니라, <b>조사 시점(2026년 6월) 자료를 바탕으로 한 대략적 분류</b>예요.</p>'
       +'<p><span class="up">▲ 상승</span> — 아래 신호가 하나 이상 보인 경우</p>'
@@ -1049,6 +1157,10 @@
     var ib=e.target.closest('[data-info]');
     if(ib){ e.preventDefault(); openInfo(ib.dataset.info); return; }
     if(e.target.closest('[data-close]')) closeInfo();
+    var st=e.target.closest('#l-sched-toggle');
+    if(st){ var w=document.getElementById('l-sched-wrap'); var open=w.hidden; w.hidden=!open; st.setAttribute('aria-expanded', open?'true':'false'); st.textContent = open ? '표 접기 ▴' : '표 펼치기 ▾'; return; }
+    var sv=e.target.closest('#sv-toggle');
+    if(sv){ var w2=document.getElementById('sv-wrap'); var op2=w2.hidden; w2.hidden=!op2; sv.setAttribute('aria-expanded', op2?'true':'false'); sv.textContent = op2 ? '표 접기 ▴' : '표 펼치기 ▾'; return; }
   });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeInfo(); });
 
@@ -1114,7 +1226,7 @@
       ins.innerHTML='결혼 비용이 축의금으로 대부분 충당돼 주택용 자기자본에 거의 영향이 없어요. 좋은 출발입니다.';
     } else {
       var equity2 = Math.max(0, L.equity - net);
-      var r2 = computeLoan(L.income, equity2, L.price, L.rate, L.term, L.credit, L.sev, L.first, L.fix);
+      var r2 = computeLoan(L.income, equity2, L.price, L.rate, L.term, L.credit, L.sev, L.first, L.fix, L.scn);
       var msg = '결혼에 순 <b>'+won(net)+'</b>를 자기자본에서 충당하면, 주택에 쓸 자기자본은 <b>'+won(equity2)+'</b>로 줄어요. '
         + '이때 주담대 가능액은 <b>'+won(r2.loan)+'</b>, 자금 부족분은 <b>'+won(r2.gap)+'</b>가 됩니다. ';
       if(r2.gap>L.gap){ msg += '결혼 지출만큼 부족분이 늘어나니, 결혼 예산과 주택 예산을 함께 조절해 보세요.'; }
@@ -1235,7 +1347,7 @@
 
   // ---- LOAN ----
   (function(){
-    var getMethod=seg('loan-method', calc), getFirst=seg('loan-first', calc), getFix=seg('loan-fix', calc);
+    var getMethod=seg('loan-method', calc), getFirst=seg('loan-first', calc), getFix=seg('loan-fix', calc), getScn=seg('loan-scn', calc);
     function calc(){
       var income = rv('[data-loan=income_g]') + rv('[data-loan=income_b]');
       var save   = rv('[data-loan=save_g]')   + rv('[data-loan=save_b]');
@@ -1247,7 +1359,8 @@
       var totalCap = equity + sev;
       var price=rv('[data-loan=price]'), rate=rv('[data-loan=rate]'), term=rv('[data-loan=term]'), credit=rv('[data-loan=credit]');
       var method=getMethod(), first=getFirst(), fix=getFix();
-      var c=computeLoan(income,equity,price,rate,term,credit,sev,first,fix);
+      var scn=getScn();
+      var c=computeLoan(income,equity,price,rate,term,credit,sev,first,fix,scn);
 
       // 합산 자본 요약
       document.getElementById('capsum').innerHTML =
@@ -1301,8 +1414,24 @@
         sb.innerHTML += '<div class="'+s[1]+'"><div class="r">'+(s[0]===0?'기준 ':'금리 ')+rr.toFixed(1)+'%</div><div class="p">'+won(Math.round(pm))+'</div></div>';
       });
 
+      (function(){
+        var wrap=document.getElementById('l-sched-wrap'), tbl=document.getElementById('l-sched');
+        var rows = schedule(method, c.loan, rate, term);
+        if(!rows.length){ tbl.innerHTML=''; wrap.hidden=true; return; }
+        var cumP=0, cumI=0, h='';
+        h += '<thead><tr><th>연차</th><th>연 원금</th><th>연 이자</th><th>누적 원금</th><th>잔액</th></tr></thead><tbody>';
+        rows.forEach(function(rr){
+          cumP+=rr.principal; cumI+=rr.interest;
+          var pct = c.loan>0 ? Math.round(cumP/c.loan*100) : 0;
+          h += '<tr><td>'+rr.y+'년</td><td>'+won(rr.principal)+'</td><td>'+won(rr.interest)
+             + '</td><td>'+won(cumP)+' <small style="color:var(--ink-soft)">('+pct+'%)</small></td><td>'+won(rr.balance)+'</td></tr>';
+        });
+        h += '</tbody><tfoot><tr><th>합계</th><th>'+won(cumP)+'</th><th>'+won(cumI)+'</th><th colspan="2">총 상환 '+won(cumP+cumI)+'</th></tr></tfoot>';
+        tbl.innerHTML=h;
+      })();
+
       R.loan={income:income,equity:totalCap,price:price,rate:rate,term:term,credit:credit,sev:0,
-              first:first,fix:fix,method:method,loan:c.loan,need:c.need,gap:c.gap,fees:c.fees,
+              first:first,fix:fix,scn:scn,method:method,loan:c.loan,need:c.need,gap:c.gap,fees:c.fees,
               monthly:payBy(method,c.loan,rate,term).first,bind:c.bind};
       refreshSummary();
     }
@@ -1412,10 +1541,23 @@
     props.forEach(function(p){ ALL[p.id]={name:p.n, priceText:'매매 '+won(p.price), py:(p.n.indexOf('59')>=0?'59㎡':'24평'), flow:p.flow, q:p.q, lat:p.lat, lng:p.lng}; });
     more.forEach(function(m){ ALL[m.id]={name:m.n, priceText:m.price, py:m.py, flow:flowTag[m.flow], q:m.q, lat:m.lat, lng:m.lng}; });
 
-    var curFilter='all', sortKey=null, sortDir=1;
+    var curFilter='all', curRegion='all', curPrice='all', sortKey=null, sortDir=1;
     function avgCommute(m){ var c=commute(m.lat,m.lng); return (c[0].min+c[1].min+c[2].min+c[3].min)/4; }
     function renderTable(){
-      var rows=more.filter(function(m){ return curFilter==='all'||m.flow===curFilter; });
+      var rows=more.filter(function(m){
+        if(!(curFilter==='all'||m.flow===curFilter)) return false;
+        if(!(curRegion==='all'||m.area.split(' ')[0]===curRegion)) return false;
+        if(curPrice!=='all'){
+          var v=m.pv;
+          if(curPrice==='u7'    && !(v<700000)) return false;
+          if(curPrice==='7to9'  && !(v>=700000 && v<900000)) return false;
+          if(curPrice==='9to10' && !(v>=900000 && v<1000000)) return false;
+          if(curPrice==='o10'   && !(v>=1000000)) return false;
+        }
+        return true;
+      });
+      var fc=document.getElementById('fcount');
+      if(fc) fc.textContent = '조건에 맞는 매물 '+rows.length+'곳 / 전체 '+more.length+'곳';
       if(sortKey){
         var rank={up:0,flat:1,down:2};
         rows=rows.slice().sort(function(a,b){
@@ -1442,11 +1584,67 @@
         if(si) si.textContent = sortDir>0?'▲':'▼';
       }
     }
+
+    // ===== 저축 계획 시뮬레이터 =====
+    function saveCalc(){
+      var init=+(document.getElementById('sv-init').value||0);
+      var mon =+(document.getElementById('sv-month').value||0);
+      var ar  =+(document.getElementById('sv-rate').value||0);
+      var goal=+(document.getElementById('sv-goal').value||0);
+      var r=ar/100/12, bal=init, months=0, rows=[], reached=-1, cap=600;
+      var yInit=init, yContrib=0, yInt=0;
+      while(months<cap){
+        months++;
+        var interest=bal*r; bal+=interest+mon; yContrib+=mon; yInt+=interest;
+        if(reached<0 && goal>0 && bal>=goal) reached=months;
+        if(months%12===0){ rows.push({y:months/12,start:Math.round(yInit),contrib:Math.round(yContrib),interest:Math.round(yInt),bal:Math.round(bal)}); yInit=bal; yContrib=0; yInt=0; }
+        if(reached>0 && months>=Math.ceil(reached/12)*12) break;
+        if(goal<=0 && months>=120) break;
+      }
+      var el=document.getElementById('sv-res'), h='';
+      var totalContrib=init+mon*months, totalInt=Math.round(bal-totalContrib);
+      if(goal>0 && reached>0){
+        var yy=Math.floor(reached/12), mm=reached%12;
+        var when=(yy>0?yy+'년 ':'')+(mm>0?mm+'개월':(yy>0?'':'0개월'));
+        h+='<div class="svbig"><span class="k">목표 '+won(goal)+' 도달까지</span><span class="v warm">'+when+'</span></div>';
+      } else if(goal>0){
+        h+='<div class="svbig"><span class="k">50년 내 목표 미달</span><span class="v">월 저축액을 늘려보세요</span></div>';
+      } else {
+        h+='<div class="svbig"><span class="k">10년 후 예상 잔액</span><span class="v warm">'+won(Math.round(bal))+'</span></div>';
+      }
+      h+='<ul class="svlines">';
+      h+='<li><span>납입 원금 합계</span><b>'+won(Math.round(totalContrib))+'</b></li>';
+      h+='<li><span>이자 수익(복리)</span><b>'+won(Math.max(0,totalInt))+'</b></li>';
+      h+='<li><span>최종 모은 돈</span><b>'+won(Math.round(bal))+'</b></li>';
+      if(typeof R!=='undefined' && R.loan && R.loan.price){
+        var acqRate=R.loan.price<=600000?0.011:R.loan.price<=900000?0.022:0.033;
+        var needNew=Math.max(0, R.loan.price+Math.round(R.loan.price*acqRate)+Math.round(R.loan.price*0.007)-bal);
+        h+='<li class="svtie"><span>이 목표 달성 시 필요 대출</span><b>'+won(Math.round(needNew))+'</b></li>';
+      }
+      h+='</ul>'; el.innerHTML=h;
+      var tbl=document.getElementById('sv-tbl'), th='';
+      th+='<thead><tr><th>연차</th><th>연초 잔액</th><th>연 납입</th><th>연 이자</th><th>연말 잔액</th></tr></thead><tbody>';
+      rows.forEach(function(x){ th+='<tr><td>'+x.y+'년</td><td>'+won(x.start)+'</td><td>'+won(x.contrib)+'</td><td>'+won(x.interest)+'</td><td>'+won(x.bal)+'</td></tr>'; });
+      th+='</tbody>'; tbl.innerHTML=th;
+    }
+    ['sv-init','sv-month','sv-rate','sv-goal'].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener('input', saveCalc); });
+    saveCalc();
+
     renderTable();
     document.getElementById('tfilter').addEventListener('click', function(e){
       var b=e.target.closest('button[data-f]'); if(!b) return;
       this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); });
       curFilter=b.dataset.f; renderTable();
+    });
+    document.getElementById('rfilter').addEventListener('click', function(e){
+      var b=e.target.closest('button[data-r]'); if(!b) return;
+      this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); });
+      curRegion=b.dataset.r; renderTable();
+    });
+    document.getElementById('pfilter').addEventListener('click', function(e){
+      var b=e.target.closest('button[data-pr]'); if(!b) return;
+      this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); });
+      curPrice=b.dataset.pr; renderTable();
     });
     document.querySelector('.ptable thead').addEventListener('click', function(e){
       if(e.target.closest('[data-info]')) return;
@@ -1474,6 +1672,9 @@
       }
       document.getElementById('slot'+(i+1)+'-name').textContent = obj.name || obj.q || '검색 위치';
       document.getElementById('slot'+(i+1)+'-naver').href = 'https://map.naver.com/p/search/'+encodeURIComponent(obj.q||obj.name||'');
+      var big=document.getElementById('slot'+(i+1)+'-big');
+      if(big && obj.lat && obj.lng){ big.href='https://www.openstreetmap.org/?mlat='+obj.lat+'&mlon='+obj.lng+'#map=16/'+obj.lat+'/'+obj.lng; big.style.display=''; }
+      else if(big){ big.style.display='none'; }
       renderCompare();
     }
     function renderCompare(){
